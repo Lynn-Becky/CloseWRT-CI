@@ -7,7 +7,7 @@ on:
       WRT_BRANCH:
         required: true
         type: string
-      WRT_SOURCE:
+      WRT_XG:
         required: false
         type: string
       WRT_TARGET:
@@ -231,4 +231,4 @@ jobs:
             设备：${{env.WRT_TYPE}}
             密码：${{env.WRT_PW}}
             地址：${{env.WRT_IP}}
-            源码来源：${{env.WRT_SOURCE}}
+            源码来源：${{env.WRT_XG}}
