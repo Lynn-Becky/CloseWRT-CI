@@ -32,6 +32,8 @@ if [ -d *"homeproxy"* ]; then
 	UPDATE_RESOURCES "china_list" "direct-list.txt" "Loyalsoldier/v2ray-rules-dat" "release"
 	#UPDATE_RESOURCES "geoip" "geoip.db" "1715173329/sing-geoip" "release"
 	#UPDATE_RESOURCES "geosite" "geosite.db" "1715173329/sing-geosite" "release"
+        UPDATE_PACKAGE "passwall-packages" "xiaorouji/openwrt-passwall-packages" "main"
+
 
 	sed -i -e "s/full://g" -e "/:/d" ./$HP_PATCH/china_list.txt
 
