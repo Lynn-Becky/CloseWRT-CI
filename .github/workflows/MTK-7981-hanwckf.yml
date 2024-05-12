@@ -34,6 +34,6 @@ jobs:
       #默认分支
       WRT_BRANCH: openwrt-21.02
       #来源
-      WRT_SOURCE: yb
+      WRT_XG: yb
       #内存压缩，可选参数，默认关闭，256内存推荐开启
       WRT_SHRINK: true
