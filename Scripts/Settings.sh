@@ -19,7 +19,7 @@ sed -i "/htbsscoex=\"0\"/{n; s/ssid=\".*\"/ssid=\"$WRT_WIFI-5G\"/}" $WIFI_FILE
 
 #添加编译日期标识
 VER_FILE=$(find ./feeds/luci/modules/ -type f -name "10_system.js")
-awk -v wrt_repo="sdk" -v wrt_date="$WRT_DATE" '{ gsub(/(\(luciversion \|\| \047\047\))/, "& + (\047 / "wrt_repo"-"wrt_date"\047)") } 1' $VER_FILE > temp.js && mv -f temp.js $VER_FILE
+awk -v wrt_repo="compile" -v wrt_date="$WRT_DATE" '{ gsub(/(\(luciversion \|\| \047\047\))/, "& + (\047 / "wrt_repo"-"wrt_date"\047)") } 1' $VER_FILE > temp.js && mv -f temp.js $VER_FILE
 
 #配置文件修改
 echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
