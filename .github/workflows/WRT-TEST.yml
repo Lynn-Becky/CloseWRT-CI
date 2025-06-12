@@ -15,7 +15,7 @@ on:
         default: 'NekokeCore/immortalwrt-mt798x-24.10'
         required: true
         type: choice
-        options: [Lynn-Becky/immortalwrt-mt798x-23.05，hanwckf/immortalwrt-mt798x, padavanonly/immortalwrt-mt798x, padavanonly/immortalwrt-mt798x-23.05, NekokeCore/immortalwrt-mt798x-24.10]
+        options: [Lynn-Becky/immortalwrt-mt798x-23.05, hanwckf/immortalwrt-mt798x, padavanonly/immortalwrt-mt798x, padavanonly/immortalwrt-mt798x-23.05, NekokeCore/immortalwrt-mt798x-24.10]
       BRANCH:
         default: 'openwrt-24.10'
         required: true
