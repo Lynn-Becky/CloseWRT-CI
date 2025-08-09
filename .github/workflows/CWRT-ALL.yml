@@ -50,7 +50,7 @@ jobs:
         CONFIG: [MT7981, MT7986]
         REPO_INFO:
           - {SOURCE: "padavanonly/immortalwrt-mt798x-6.6", BRANCH: "2410"}
-          - {SOURCE: "Lynn-Becky/immortalwrt-mt798x-23.05", BRANCH: "openwrt-24.10"}
+          - {SOURCE: "Lynn-Becky/immortalwrt-mt798x-23.05", BRANCH: "openwrt-23.05"}
           #- {SOURCE: "dailook/immortalwrt-mt798x-23.05", BRANCH: "openwrt-23.05"}
           #- {SOURCE: "NekokeCore/immortalwrt-mt798x-24.10", BRANCH: "openwrt-24.10"}
 
