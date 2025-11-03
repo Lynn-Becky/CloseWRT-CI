@@ -1,7 +1,5 @@
 #科学插件调整
 CONFIG_PACKAGE_luci-app-passwall=y
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_SingBox is not set
-CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Xray=y
 #增加插件
 CONFIG_PACKAGE_luci-app-autoreboot=y
 CONFIG_PACKAGE_luci-app-upnp=y
@@ -352,3 +350,4 @@ CONFIG_WARP_NEW_FW=y
 CONFIG_WARP_VERSION=2
 
 CONFIG_WED_HW_RRO_SUPPORT=y
+
