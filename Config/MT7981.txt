@@ -31,6 +31,7 @@ CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_xiaomi_mi-router-ax3000t=y
 CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_xiaomi_mi-router-ax3000t-ubootmod=y
 CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_xiaomi_mi-router-wr30u-stock=y
 CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_xiaomi_mi-router-wr30u-ubootmod=y
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_clt_r30b1=y
 #必选组件
 CONFIG_first_card_name="MT7981"
 CONFIG_MTK_CHIP_MT7981=y
