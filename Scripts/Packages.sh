@@ -42,6 +42,36 @@ UPDATE_PACKAGE() {
 	fi
 }
 
+# 使用 PassWall 官方仓库替换 OpenWrt feeds 中的旧版依赖和 LuCI 应用。
+# 此脚本在 feeds install 完成后于 wrt/package 目录执行。
+SYNC_PASSWALL() {
+	local PASSWALL_CORE_PACKAGES=(
+		xray-core v2ray-geodata sing-box chinadns-ng dns2socks hysteria
+		ipt2socks microsocks naiveproxy shadowsocks-rust shadowsocksr-libev
+		simple-obfs tcping v2ray-plugin xray-plugin geoview shadow-tls
+	)
+
+	echo " "
+	echo "Syncing latest PassWall packages..."
+
+	# 删除 feeds/packages 中与 PassWall 官方仓库重复的旧核心库。
+	local PKG
+	for PKG in "${PASSWALL_CORE_PACKAGES[@]}"; do
+		rm -rf "../feeds/packages/net/$PKG"
+	done
+	# 删除 feeds/luci 中可能存在的旧版 PassWall LuCI 应用。
+	rm -rf ../feeds/luci/applications/luci-app-passwall
+
+	# 使该步骤可重复执行，并始终从 main 分支获取最新源码。
+	rm -rf ./passwall-packages ./passwall-luci
+	git clone --depth=1 --single-branch --branch main \
+		"https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git" \
+		./passwall-packages || return 1
+	git clone --depth=1 --single-branch --branch main \
+		"https://github.com/Openwrt-Passwall/openwrt-passwall.git" \
+		./passwall-luci || return 1
+}
+
 # 调用示例
 # UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "custom_name1 custom_name2"
 # UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
@@ -60,9 +90,8 @@ UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"
 UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
 UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "dev" "pkg"
-UPDATE_PACKAGE "passwall" "Openwrt-Passwall/openwrt-passwall" "main" "pkg"
+SYNC_PASSWALL || exit 1
 UPDATE_PACKAGE "passwall2" "Openwrt-Passwall/openwrt-passwall2" "main" "pkg"
-UPDATE_PACKAGE "passwall" "Openwrt-Passwall/openwrt-passwall-packages" "main" "pkg"
 
 UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
 
