@@ -42,6 +42,37 @@ UPDATE_PACKAGE() {
 	fi
 }
 
+# 将 OpenWrt 24.10 feeds 中的 Go 1.23 工具链升级至 Go 1.25.6。
+# geoview 0.2.6 要求 Go 1.25+；该固定提交包含构建 Go 1.25 所需的
+# Go 1.22 bootstrap 阶段，并保留 24.10 可用的 golang 包接口。
+UPGRADE_GOLANG_TOOLCHAIN() {
+	local GOLANG_MAKEFILE="../feeds/packages/lang/golang/golang/Makefile"
+	local GOLANG_MAKEFILE_TMP="${GOLANG_MAKEFILE}.new"
+	local GOLANG_MAKEFILE_URL="https://raw.githubusercontent.com/openwrt/packages/dbaeeb38d3df5f7b8c78ff23e558d2eab5b0a895/lang/golang/golang/Makefile"
+	local GOLANG_MAKEFILE_SHA256="882f33eaf85f1d70492a5c994855e94a8cd705393d7f46cb093621eca323b628"
+
+	if [ ! -f "$GOLANG_MAKEFILE" ]; then
+		echo "Go package Makefile not found: $GOLANG_MAKEFILE" >&2
+		return 1
+	fi
+
+	echo " "
+	echo "Upgrading Go toolchain to 1.25.6..."
+
+	# 先下载到临时文件并验证哈希，避免网络错误覆盖原 feeds 文件。
+	rm -f "$GOLANG_MAKEFILE_TMP"
+	if ! curl --fail --location --retry 3 --retry-delay 2 \
+		--output "$GOLANG_MAKEFILE_TMP" "$GOLANG_MAKEFILE_URL"; then
+		rm -f "$GOLANG_MAKEFILE_TMP"
+		return 1
+	fi
+	echo "$GOLANG_MAKEFILE_SHA256  $GOLANG_MAKEFILE_TMP" | sha256sum --check - || {
+		rm -f "$GOLANG_MAKEFILE_TMP"
+		return 1
+	}
+	mv -f "$GOLANG_MAKEFILE_TMP" "$GOLANG_MAKEFILE"
+}
+
 # 使用 PassWall 官方仓库替换 OpenWrt feeds 中的旧版依赖和 LuCI 应用。
 # 此脚本在 feeds install 完成后于 wrt/package 目录执行。
 SYNC_PASSWALL() {
@@ -90,6 +121,7 @@ UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"
 UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
 UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "dev" "pkg"
+UPGRADE_GOLANG_TOOLCHAIN || exit 1
 SYNC_PASSWALL || exit 1
 UPDATE_PACKAGE "passwall2" "Openwrt-Passwall/openwrt-passwall2" "main" "pkg"
 
