@@ -77,7 +77,7 @@ UPGRADE_GOLANG_TOOLCHAIN() {
 # 此脚本在 feeds install 完成后于 wrt/package 目录执行。
 SYNC_PASSWALL() {
 	local PASSWALL_CORE_PACKAGES=(
-		xray-core v2ray-geodata sing-box chinadns-ng dns2socks hysteria
+		v2ray-geodata sing-box chinadns-ng dns2socks hysteria
 		ipt2socks microsocks naiveproxy shadowsocks-rust shadowsocksr-libev
 		simple-obfs tcping v2ray-plugin xray-plugin geoview shadow-tls
 	)
@@ -102,15 +102,16 @@ SYNC_PASSWALL() {
 		"https://github.com/Openwrt-Passwall/openwrt-passwall.git" \
 		./passwall-luci || return 1
 
-	# xray-core 26.10+ 要求 Go 1.27，当前 24.10 分支升级后的工具链为 Go 1.25.6。
-	# 固定到仍兼容 Go 1.25.6 的版本，避免构建阶段直接因 go.mod 版本检查失败。
-	local XRAY_MAKEFILE="./passwall-packages/xray-core/Makefile"
-	if [ -f "$XRAY_MAKEFILE" ]; then
-		sed -i \
-			-e 's/^PKG_VERSION:=.*/PKG_VERSION:=26.1.23/' \
-			-e 's/^PKG_HASH:=.*/PKG_HASH:=0442d7cbb7de02ef9eac9ad652df66972962473dc7b55441d5abcd032a74b41d/' \
-			"$XRAY_MAKEFILE"
+	# 不在固件中编译 Xray；用户可在设备上自行安装匹配版本。
+	rm -rf ./passwall-packages/xray-core
+	local PASSWALL_MAKEFILE="./passwall-luci/luci-app-passwall/Makefile"
+	if [ ! -f "$PASSWALL_MAKEFILE" ]; then
+		echo "PassWall Makefile not found: $PASSWALL_MAKEFILE" >&2
+		return 1
 	fi
+	sed -i \
+		'/config PACKAGE_.*_INCLUDE_Xray/,/default y if aarch64||arm||i386||x86_64/ s/default y if aarch64||arm||i386||x86_64/default n/' \
+		"$PASSWALL_MAKEFILE"
 }
 
 # 调用示例
