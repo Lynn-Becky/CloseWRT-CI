@@ -101,6 +101,16 @@ SYNC_PASSWALL() {
 	git clone --depth=1 --single-branch --branch main \
 		"https://github.com/Openwrt-Passwall/openwrt-passwall.git" \
 		./passwall-luci || return 1
+
+	# xray-core 26.10+ 要求 Go 1.27，当前 24.10 分支升级后的工具链为 Go 1.25.6。
+	# 固定到仍兼容 Go 1.25.6 的版本，避免构建阶段直接因 go.mod 版本检查失败。
+	local XRAY_MAKEFILE="./passwall-packages/xray-core/Makefile"
+	if [ -f "$XRAY_MAKEFILE" ]; then
+		sed -i \
+			-e 's/^PKG_VERSION:=.*/PKG_VERSION:=26.1.23/' \
+			-e 's/^PKG_HASH:=.*/PKG_HASH:=0442d7cbb7de02ef9eac9ad652df66972962473dc7b55441d5abcd032a74b41d/' \
+			"$XRAY_MAKEFILE"
+	fi
 }
 
 # 调用示例
