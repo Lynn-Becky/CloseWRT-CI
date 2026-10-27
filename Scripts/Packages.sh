@@ -77,7 +77,7 @@ UPGRADE_GOLANG_TOOLCHAIN() {
 # 此脚本在 feeds install 完成后于 wrt/package 目录执行。
 SYNC_PASSWALL() {
 	local PASSWALL_CORE_PACKAGES=(
-		xray-core v2ray-geodata sing-box chinadns-ng dns2socks hysteria
+		v2ray-geodata sing-box chinadns-ng dns2socks hysteria
 		ipt2socks microsocks naiveproxy shadowsocks-rust shadowsocksr-libev
 		simple-obfs tcping v2ray-plugin xray-plugin geoview shadow-tls
 	)
@@ -101,6 +101,17 @@ SYNC_PASSWALL() {
 	git clone --depth=1 --single-branch --branch main \
 		"https://github.com/Openwrt-Passwall/openwrt-passwall.git" \
 		./passwall-luci || return 1
+
+	# 不在固件中编译 Xray；用户可在设备上自行安装匹配版本。
+	rm -rf ./passwall-packages/xray-core
+	local PASSWALL_MAKEFILE="./passwall-luci/luci-app-passwall/Makefile"
+	if [ ! -f "$PASSWALL_MAKEFILE" ]; then
+		echo "PassWall Makefile not found: $PASSWALL_MAKEFILE" >&2
+		return 1
+	fi
+	sed -i \
+		'/config PACKAGE_.*_INCLUDE_Xray/,/default y if aarch64||arm||i386||x86_64/ s/default y if aarch64||arm||i386||x86_64/default n/' \
+		"$PASSWALL_MAKEFILE"
 }
 
 # 调用示例
