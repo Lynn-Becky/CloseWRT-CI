@@ -42,35 +42,46 @@ UPDATE_PACKAGE() {
 	fi
 }
 
-# 将 OpenWrt 24.10 feeds 中的 Go 1.23 工具链升级至 Go 1.25.6。
-# geoview 0.2.6 要求 Go 1.25+；该固定提交包含构建 Go 1.25 所需的
-# Go 1.22 bootstrap 阶段，并保留 24.10 可用的 golang 包接口。
+# 将 OpenWrt 24.10 feeds 中的 Go 工具链升级至 Go 1.27.3。
+# 最新版 xray-core 的 go.mod 要求 Go 1.27；整个 lang/golang feed 必须同步，
+# 因为 Go 1.27 使用了版本化工具链和独立 bootstrap 包。
 UPGRADE_GOLANG_TOOLCHAIN() {
-	local GOLANG_MAKEFILE="../feeds/packages/lang/golang/golang/Makefile"
-	local GOLANG_MAKEFILE_TMP="${GOLANG_MAKEFILE}.new"
-	local GOLANG_MAKEFILE_URL="https://raw.githubusercontent.com/openwrt/packages/dbaeeb38d3df5f7b8c78ff23e558d2eab5b0a895/lang/golang/golang/Makefile"
-	local GOLANG_MAKEFILE_SHA256="882f33eaf85f1d70492a5c994855e94a8cd705393d7f46cb093621eca323b628"
+	local GOLANG_DIR="../feeds/packages/lang/golang"
+	local GOLANG_FEED_COMMIT="ac1e300d570a55fba0483559106c7b79876511c8"
+	local GOLANG_ARCHIVE_URL="https://codeload.github.com/openwrt/packages/tar.gz/$GOLANG_FEED_COMMIT"
+	local GOLANG_TMP_DIR
+	local GOLANG_ARCHIVE
 
-	if [ ! -f "$GOLANG_MAKEFILE" ]; then
-		echo "Go package Makefile not found: $GOLANG_MAKEFILE" >&2
+	if [ ! -d "$GOLANG_DIR" ]; then
+		echo "Go package feed not found: $GOLANG_DIR" >&2
 		return 1
 	fi
 
 	echo " "
-	echo "Upgrading Go toolchain to 1.25.6..."
+	echo "Upgrading Go toolchain to 1.27.3..."
 
-	# 先下载到临时文件并验证哈希，避免网络错误覆盖原 feeds 文件。
-	rm -f "$GOLANG_MAKEFILE_TMP"
+	GOLANG_TMP_DIR=$(mktemp -d) || return 1
+	GOLANG_ARCHIVE="$GOLANG_TMP_DIR/packages.tar.gz"
 	if ! curl --fail --location --retry 3 --retry-delay 2 \
-		--output "$GOLANG_MAKEFILE_TMP" "$GOLANG_MAKEFILE_URL"; then
-		rm -f "$GOLANG_MAKEFILE_TMP"
+		--output "$GOLANG_ARCHIVE" "$GOLANG_ARCHIVE_URL"; then
+		rm -rf "$GOLANG_TMP_DIR"
 		return 1
 	fi
-	echo "$GOLANG_MAKEFILE_SHA256  $GOLANG_MAKEFILE_TMP" | sha256sum --check - || {
-		rm -f "$GOLANG_MAKEFILE_TMP"
+
+	if ! tar -xzf "$GOLANG_ARCHIVE" -C "$GOLANG_TMP_DIR"; then
+		rm -rf "$GOLANG_TMP_DIR"
 		return 1
-	}
-	mv -f "$GOLANG_MAKEFILE_TMP" "$GOLANG_MAKEFILE"
+	fi
+
+	rm -rf "${GOLANG_DIR}.new"
+	if ! mv "$GOLANG_TMP_DIR/packages-${GOLANG_FEED_COMMIT}/lang/golang" \
+		"${GOLANG_DIR}.new"; then
+		rm -rf "$GOLANG_TMP_DIR" "${GOLANG_DIR}.new"
+		return 1
+	fi
+	rm -rf "$GOLANG_DIR"
+	mv "${GOLANG_DIR}.new" "$GOLANG_DIR"
+	rm -rf "$GOLANG_TMP_DIR"
 }
 
 # 使用 PassWall 官方仓库替换 OpenWrt feeds 中的旧版依赖和 LuCI 应用。

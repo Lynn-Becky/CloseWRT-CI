@@ -95,9 +95,9 @@ jobs:
           echo "WRT_WIFI=wifi-yes" >> $GITHUB_ENV
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
-          # Go 1.25.6 replaces the feeds-provided Go 1.23 toolchain in Packages.sh.
+          # Go 1.27.3 replaces the feeds-provided Go toolchain in Packages.sh.
           # Keep its staging files isolated from older Go caches.
-          echo "WRT_CACHE_VERSION=golang-1.25.6" >> $GITHUB_ENV
+          echo "WRT_CACHE_VERSION=golang-1.27.3" >> $GITHUB_ENV
 
       - name: Clone Code
         run: |
